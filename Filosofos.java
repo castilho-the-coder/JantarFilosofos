@@ -30,19 +30,41 @@ class Filosofo implements Runnable {
             while (continuar.get()) {
                 pensar();
 
-                // Tentativa de pegar palitos
-                palitoEsquerdo.lock();
-                System.out.println("Filósofo " + id + " pegou o palito esquerdo.");
-                palitoDireito.lock();
-                System.out.println("Filósofo " + id + " pegou o palito direito.");
+                // Ordem de bloqueio alternada impede que todos os filósofos
+                // peguem o mesmo palito primeiro na primeira rodada.
+                if (id % 2 == 0) {
+                    // Filósofos com id par pegam primeiro o palito direito e depois o esquerdo
+                    palitoDireito.lock();
+                    System.out.println("Filósofo " + id + " pegou o palito direito.");
+                    palitoEsquerdo.lock();
+                    System.out.println("Filósofo " + id + " pegou o palito esquerdo.");
 
-                comer();
+                    try {
+                        comer();
+                    } finally {
+                        // Liberar palitos na ordem inversa
+                        palitoEsquerdo.unlock();
+                        System.out.println("Filósofo " + id + " liberou o palito esquerdo.");
+                        palitoDireito.unlock();
+                        System.out.println("Filósofo " + id + " liberou o palito direito.");
+                    }
+                } else {
+                    // Filósofos com id ímpar pegam primeiro o palito esquerdo e depois o direito (ordem original)
+                    palitoEsquerdo.lock();
+                    System.out.println("Filósofo " + id + " pegou o palito esquerdo.");
+                    palitoDireito.lock();
+                    System.out.println("Filósofo " + id + " pegou o palito direito.");
 
-                // Liberar palitos
-                palitoDireito.unlock();
-                System.out.println("Filósofo " + id + " liberou o palito direito.");
-                palitoEsquerdo.unlock();
-                System.out.println("Filósofo " + id + " liberou o palito esquerdo.");
+                    try {
+                        comer();
+                    } finally {
+                        // Liberar palitos na ordem inversa
+                        palitoDireito.unlock();
+                        System.out.println("Filósofo " + id + " liberou o palito direito.");
+                        palitoEsquerdo.unlock();
+                        System.out.println("Filósofo " + id + " liberou o palito esquerdo.");
+                    }
+                }
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
