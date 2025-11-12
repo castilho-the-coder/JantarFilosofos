@@ -1,4 +1,4 @@
-# Jantar dos Filósofos (Dining Philosophers Problem)
+# Jantar dos Filósofos 
 
 ## 📋 Descrição
 
