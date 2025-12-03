@@ -1,73 +1,72 @@
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock; // interface para locks 
+import java.util.concurrent.atomic.AtomicBoolean; 
 
-class Filosofo implements Runnable {
-    private final int id;
-    private final Lock palitoEsquerdo;
-    private final Lock palitoDireito;
-    private final AtomicBoolean continuar;
+class Filosofo implements Runnable { 
+    private final int id; // identificador do filósofo
+    private final Lock palitoEsquerdo; // lock do palito esquerdo
+    private final Lock palitoDireito; // lock do palito direito
+    private final AtomicBoolean continuar; // flag compartilhada que indica se deve continuar
 
     public Filosofo(int id, Lock palitoEsquerdo, Lock palitoDireito, AtomicBoolean continuar) {
-        this.id = id;
-        this.palitoEsquerdo = palitoEsquerdo;
-        this.palitoDireito = palitoDireito;
-        this.continuar = continuar;
+        this.id = id; // armazena id
+        this.palitoEsquerdo = palitoEsquerdo; // armazena referência ao lock esquerdo
+        this.palitoDireito = palitoDireito; // armazena referência ao lock direito
+        this.continuar = continuar; // armazena a flag de continuação
     }
 
-    private void pensar() throws InterruptedException {
+    private void pensar() throws InterruptedException { // simula pensamento
         System.out.println("Filósofo " + id + " está pensando.");
-        Thread.sleep(1000);
+        Thread.sleep(1000); 
     }
 
-    private void comer() throws InterruptedException {
-        System.out.println("Filósofo " + id + " está comendo.");
-        Thread.sleep(1000);
+    private void comer() throws InterruptedException { // simula comer
+        System.out.println("Filósofo " + id + " está comendo."); 
+        Thread.sleep(1000); 
     }
 
     @Override
-    public void run() {
+    public void run() { 
         try {
-            while (continuar.get()) {
-                pensar();
+            while (continuar.get()) { 
+                pensar(); // pensar antes de tentar comer
 
-                // Ordem de bloqueio alternada impede que todos os filósofos
-                // peguem o mesmo palito primeiro na primeira rodada.
+                // alternar ordem de aquisição dos locks para evitar deadlock
                 if (id % 2 == 0) {
-                    // Filósofos com id par pegam primeiro o palito direito e depois o esquerdo
-                    palitoDireito.lock();
-                    System.out.println("Filósofo " + id + " pegou o palito direito.");
-                    palitoEsquerdo.lock();
-                    System.out.println("Filósofo " + id + " pegou o palito esquerdo.");
+                    // IDs pares pegam primeiro o palito direito
+                    palitoDireito.lock(); 
+                    System.out.println("Filósofo " + id + " pegou o palito direito."); 
+                    palitoEsquerdo.lock(); 
+                    System.out.println("Filósofo " + id + " pegou o palito esquerdo."); 
 
                     try {
-                        comer();
+                        comer(); 
                     } finally {
-                        // Liberar palitos na ordem inversa
-                        palitoEsquerdo.unlock();
-                        System.out.println("Filósofo " + id + " liberou o palito esquerdo.");
-                        palitoDireito.unlock();
-                        System.out.println("Filósofo " + id + " liberou o palito direito.");
+                        // liberar na ordem inversa para consistência
+                        palitoEsquerdo.unlock(); 
+                        System.out.println("Filósofo " + id + " liberou o palito esquerdo."); 
+                        palitoDireito.unlock(); 
+                        System.out.println("Filósofo " + id + " liberou o palito direito."); 
                     }
                 } else {
-                    // Filósofos com id ímpar pegam primeiro o palito esquerdo e depois o direito (ordem original)
-                    palitoEsquerdo.lock();
-                    System.out.println("Filósofo " + id + " pegou o palito esquerdo.");
-                    palitoDireito.lock();
-                    System.out.println("Filósofo " + id + " pegou o palito direito.");
+                    // IDs ímpares pegam primeiro o palito esquerdo 
+                    palitoEsquerdo.lock(); 
+                    System.out.println("Filósofo " + id + " pegou o palito esquerdo."); // log
+                    palitoDireito.lock(); 
+                    System.out.println("Filósofo " + id + " pegou o palito direito."); // log
 
                     try {
-                        comer();
+                        comer(); 
                     } finally {
-                        // Liberar palitos na ordem inversa
-                        palitoDireito.unlock();
-                        System.out.println("Filósofo " + id + " liberou o palito direito.");
-                        palitoEsquerdo.unlock();
-                        System.out.println("Filósofo " + id + " liberou o palito esquerdo.");
+                        // liberar na ordem inversa
+                        palitoDireito.unlock(); 
+                        System.out.println("Filósofo " + id + " liberou o palito direito."); 
+                        palitoEsquerdo.unlock(); 
+                        System.out.println("Filósofo " + id + " liberou o palito esquerdo."); 
                     }
                 }
             }
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            Thread.currentThread().interrupt(); 
         }
     }
 }

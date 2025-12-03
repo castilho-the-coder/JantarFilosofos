@@ -1,62 +1,63 @@
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.Lock; 
+import java.util.concurrent.locks.ReentrantLock; 
+import java.util.concurrent.atomic.AtomicBoolean; 
 
-public class Jantar {
+public class Jantar { 
     public static void main(String[] args) {
-        int numFilosofos = 5;
-        long tempoExecucao = 10000; // 10 segundos em milissegundos
+        int numFilosofos = 5; // quantidade padrão de filósofos
+        long tempoExecucao = 10000; // tempo total
         
-        Lock[] garfos = new ReentrantLock[numFilosofos];
-        Thread[] filosofos = new Thread[numFilosofos];
-        AtomicBoolean continuar = new AtomicBoolean(true);
+        Lock[] palitos = new ReentrantLock[numFilosofos]; // array de locks representando palitos
+        Thread[] filosofos = new Thread[numFilosofos]; // array de threads dos filósofos
+        AtomicBoolean continuar = new AtomicBoolean(true); // flag para controlar execução
 
-        // Inicializar os garfos
+       
         for (int i = 0; i < numFilosofos; i++) {
-            garfos[i] = new ReentrantLock();
+            palitos[i] = new ReentrantLock(); // cria lock para cada palito
         }
 
-        // Inicializar e iniciar as threads dos filósofos
+        // iniciar as threads dos filósofos
         for (int i = 0; i < numFilosofos; i++) {
-            filosofos[i] = new Thread(new Filosofo(i, garfos[i], garfos[(i + 1) % numFilosofos], continuar));
-            filosofos[i].start();
+            // passa o palito i como esquerdo e (i+1)%n como direito
+            filosofos[i] = new Thread(new Filosofo(i, palitos[i], palitos[(i + 1) % numFilosofos], continuar));
+            filosofos[i].start(); // inicia a thread
         }
 
-        // Timer para finalizar a execução
+        // timer para finalizar a execução 
         Timer timer = new Timer(tempoExecucao, continuar, filosofos);
-        timer.start();
+        timer.start(); 
     }
 }
 
-// Classe para gerenciar o timer
+// classe para gerenciar o timer que encerra a simulação
 class Timer extends Thread {
-    private final long duracao;
-    private final AtomicBoolean continuar;
-    private final Thread[] filosofos;
+    private final long duracao; 
+    private final AtomicBoolean continuar; 
+    private final Thread[] filosofos; 
 
     public Timer(long duracao, AtomicBoolean continuar, Thread[] filosofos) {
-        this.duracao = duracao;
-        this.continuar = continuar;
-        this.filosofos = filosofos;
+        this.duracao = duracao; 
+        this.continuar = continuar; 
+        this.filosofos = filosofos; 
     }
 
     @Override
     public void run() {
         try {
-            System.out.println("Timer iniciado: a execução vai durar " + duracao + "ms");
-            Thread.sleep(duracao);
+            System.out.println("Timer iniciado: a execução vai durar " + duracao + "ms"); 
+            Thread.sleep(duracao); // espera o tempo configurado
             
-            System.out.println("\n=== TEMPO FINALIZADO ===");
-            continuar.set(false);
+            System.out.println("\n=== TEMPO FINALIZADO ==="); 
+            continuar.set(false); // sinaliza para as threads pararem
             
-            // Aguardar que todas as threads de filósofos terminem
+            // aguarda que todas as threads de filósofos terminem
             for (Thread filosofo : filosofos) {
-                filosofo.join();
+                filosofo.join(); 
             }
             
-            System.out.println("Todos os filósofos pararam de comer.");
+            System.out.println("Todos os filósofos pararam de comer."); 
         } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
+            Thread.currentThread().interrupt(); 
         }
     }
 }
