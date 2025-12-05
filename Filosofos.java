@@ -1,4 +1,4 @@
-import java.util.concurrent.locks.Lock; // interface para locks 
+import java.util.concurrent.locks.Lock; 
 import java.util.concurrent.atomic.AtomicBoolean; 
 
 class Filosofo implements Runnable { 

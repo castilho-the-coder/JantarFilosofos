@@ -4,7 +4,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Jantar { 
     public static void main(String[] args) {
-        int numFilosofos = 5; // quantidade padrão de filósofos
+        int numFilosofos = 5; // quantidade de filósofos
         long tempoExecucao = 10000; // tempo total
         
         Lock[] palitos = new ReentrantLock[numFilosofos]; // array de locks representando palitos
